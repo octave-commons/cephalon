@@ -56,6 +56,12 @@ This is a strong candidate for reuse across the larger family.
 ### `src/promethean/runtime/eventbus.clj`
 Event transport within the precursor runtime.
 
+It now also exposes boundary-edge helpers so JVM CLJ code can:
+- ingest canonical event envelopes into the internal bus
+- subscribe to canonical event envelopes derived from internal bus events
+
+That makes the precursor runtime a real participant in the shared cross-strata event contract instead of a purely local bus.
+
 ### `src/promethean/eidolon/*`
 Related-memory and prompt support.
 

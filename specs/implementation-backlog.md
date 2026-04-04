@@ -46,7 +46,14 @@ Drafted contract set:
 - [x] draft one runtime-state contract for graph/field/prompt summaries
 - [x] draft a revived candidate runtime handoff flow from `packages/cephalon-ts/docs/runtime-handoff.md`
 
-Implementation and adapter work still remain after the draft.
+Implemented so far:
+- `packages/cephalon-ts/src/contracts/event-envelope.ts`
+- `packages/cephalon-cljs/src/promethean/contracts/event_envelope.cljs`
+- `packages/cephalon-cljs/src/promethean/bridge/cephalon_ts.cljs` boundary-envelope bridge helpers
+- `packages/cephalon-clj/src/promethean/contracts/event_envelope.clj`
+- `packages/cephalon-clj/src/promethean/runtime/eventbus.clj` boundary-edge bus helpers
+
+Implementation and adapter work still remain after the draft, especially for memory, tool, and runtime-state surfaces.
 
 ## Phase 3 — choose convergence lines
 
