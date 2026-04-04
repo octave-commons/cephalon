@@ -279,11 +279,88 @@
 (deftest bridge-exports-required-functions
   "Test: Bridge module exports start! and stop!"
 
-  (testing "start! and stop! are exported and callable"
+  (testing "start!, stop!, and envelope helpers are exported and callable"
     (is (fn? bridge/start!)
         "start! should be a function")
+    (is (fn? bridge/event->boundary-envelope)
+        "event->boundary-envelope should be a function")
+    (is (fn? bridge/boundary-envelope->event)
+        "boundary-envelope->event should be a function")
     (is (fn? bridge/stop!)
         "stop! should be a function")))
+
+(deftest bridge-event->boundary-envelope-normalizes-to-canonical-shape
+  "Test: CLJS bridge emits canonical boundary event envelopes"
+
+  (testing "Local CLJS event maps become canonical boundary envelopes"
+    (let [envelope (bridge/event->boundary-envelope
+                     {:event/id "550e8400-e29b-41d4-a716-446655440000"
+                      :event/ts 1706899200000
+                      :event/type :tool/result
+                      :event/session-id "c3-symbolic"
+                      :event/source {:kind :tool}
+                      :event/payload {:toolName "web.fetch"
+                                      :callId "9d1ee247-8136-4ca2-9f37-db6eeff360f2"
+                                      :result {:ok true}}}
+                     {:cephalon-id "duck"
+                      :runtime-id "cljs-runtime-1"
+                      :package-name "cephalon-cljs"})]
+      (is (= 1 (:schemaVersion envelope))
+          "Schema version should be present")
+      (is (= "tool.result" (:type envelope))
+          "Boundary type should be canonical")
+      (is (= "duck" (:cephalonId envelope))
+          "Cephalon id should be attached")
+      (is (= "cephalon-cljs" (get-in envelope [:source :package]))
+          "Package name should be preserved")
+      (is (= "9d1ee247-8136-4ca2-9f37-db6eeff360f2" (get-in envelope [:trace :callId]))
+          "callId should be lifted into boundary trace"))))
+
+(deftest bridge-boundary-envelope->event-restores-cljs-shape
+  "Test: CLJS bridge consumes canonical boundary envelopes"
+
+  (testing "Canonical boundary envelopes convert back into CLJS event maps"
+    (let [evt (bridge/boundary-envelope->event
+                {:schemaVersion 1
+                 :id "550e8400-e29b-41d4-a716-446655440000"
+                 :type "discord.message.created"
+                 :timestamp 1706899200000
+                 :sessionId "c3-symbolic"
+                 :payload {:channel-id "343299242963763200"
+                           :content "quack"}
+                 :source {:package "cephalon-ts" :surface "discord"}})]
+      (is (= :discord.message/new (:event/type evt))
+          "Boundary type should map back into CLJS dispatch keyword")
+      (is (= "c3-symbolic" (:event/session-id evt))
+          "Session id should survive the roundtrip")
+      (is (= "quack" (get-in evt [:event/payload :content]))
+          "Payload should survive the roundtrip"))))
+
+(deftest bridge-normalize-boundary-envelope-uses-ts-normalizer-when-available
+  "Test: Bridge defers to exported TS envelope normalizer when available"
+
+  (testing "TS normalization can enrich the canonical envelope"
+    (with-redefs [bridge/require-cephalon-ts
+                  (fn []
+                    #js {:normalizeBoundaryEventEnvelope
+                         (fn [envelope _opts]
+                           (let [clone (js/JSON.parse (js/JSON.stringify envelope))]
+                             (aset clone "schemaVersion" 77)
+                             (aset clone "source"
+                                   #js {:package "ts-normalized"
+                                        :surface "tool"})
+                             clone))})]
+      (let [envelope (bridge/normalize-boundary-envelope
+                       {:event/id "550e8400-e29b-41d4-a716-446655440000"
+                        :event/ts 1706899200000
+                        :event/type :tool/result
+                        :event/payload {:toolName "web.fetch"
+                                        :callId "9d1ee247-8136-4ca2-9f37-db6eeff360f2"
+                                        :result {:ok true}}})]
+        (is (= 77 (:schemaVersion envelope))
+            "Bridge should accept TS-side normalized schemaVersion")
+        (is (= "ts-normalized" (get-in envelope [:source :package]))
+            "Bridge should accept TS-side normalized source metadata")))))
 
 (deftest bridge-exports-app-atom
   "Test: Bridge module exports *app atom"

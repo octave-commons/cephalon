@@ -86,6 +86,7 @@ The explicit bridge into the TypeScript runtime.
 Why it matters:
 - it proves the family was already trying to compose languages rather than forcing a single-language answer
 - it gives the CLJS branch a way to remain the always-running mind while borrowing the stronger TS service runtime
+- it now carries explicit helpers for converting CLJS internal events to canonical boundary envelopes and back again, with optional TS-side normalization when the TS runtime exports it
 
 ## Note corpus as architecture surface
 

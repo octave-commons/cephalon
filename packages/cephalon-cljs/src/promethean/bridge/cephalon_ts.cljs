@@ -1,5 +1,6 @@
 (ns promethean.bridge.cephalon-ts
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [promethean.contracts.event-envelope :as event-envelope]))
 
 (defonce *app (atom nil))
 
@@ -72,8 +73,53 @@
               :tick (or (:tick m) nil)}]
     (clj->js (into {} (remove (fn [[_ v]] (nil? v)) opts)))))
 
-(defn- require-cephalon-ts []
+(defn require-cephalon-ts []
   (js/require "@promethean-os/cephalon-ts"))
+
+(defn- ->js-envelope-opts [m]
+  (let [m (or m {})
+        source (or (:source m) {})
+        opts {:cephalonId (or (:cephalon-id m) (:cephalonId m))
+              :schemaVersion (or (:schema-version m) (:schemaVersion m))
+              :trace (or (:trace m) nil)
+              :source (let [normalized-source {:package (or (:package-name m)
+                                                           (:package source)
+                                                           (:package-name source))
+                                               :runtime (or (:runtime-id m)
+                                                            (:runtime source)
+                                                            (:runtime-id source))
+                                               :surface (or (:surface m)
+                                                            (:surface source))}]
+                        (when (some some? (vals normalized-source))
+                          normalized-source))}]
+    (clj->js (into {} (remove (fn [[_ v]] (nil? v)) opts)))))
+
+(defn- maybe-ts-normalize-boundary-envelope [envelope opts]
+  (try
+    (let [cephalon (require-cephalon-ts)
+          normalize (.-normalizeBoundaryEventEnvelope cephalon)]
+      (if (fn? normalize)
+        (js->clj (normalize (clj->js envelope) (->js-envelope-opts opts)) :keywordize-keys true)
+        envelope))
+    (catch :default _
+      envelope)))
+
+(defn normalize-boundary-envelope
+  ([value] (normalize-boundary-envelope value {}))
+  ([value opts]
+   (let [normalized (event-envelope/normalize-boundary-envelope value opts)]
+     (maybe-ts-normalize-boundary-envelope normalized opts))))
+
+(defn event->boundary-envelope
+  ([evt] (event->boundary-envelope evt {}))
+  ([evt opts]
+   (normalize-boundary-envelope evt opts)))
+
+(defn boundary-envelope->event
+  [envelope]
+  (-> envelope
+      normalize-boundary-envelope
+      event-envelope/from-boundary-envelope))
 
 (defn create-cephalon-app!
   "Create a new Cephalon application instance."
