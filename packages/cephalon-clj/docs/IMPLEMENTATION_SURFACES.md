@@ -62,6 +62,13 @@ It now also exposes boundary-edge helpers so JVM CLJ code can:
 
 That makes the precursor runtime a real participant in the shared cross-strata event contract instead of a purely local bus.
 
+### `src/promethean/contracts/memory_record.clj`
+Boundary adapter for canonical cross-strata memory records.
+
+Why it matters:
+- it converts the older JVM-local memory shape into the canonical boundary record
+- it also converts canonical boundary records back into a JVM-local map that legacy runtime code can still consume
+
 ### `src/promethean/eidolon/*`
 Related-memory and prompt support.
 

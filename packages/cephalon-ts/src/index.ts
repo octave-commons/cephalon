@@ -1,6 +1,7 @@
 export * from "./app.js";
 
 export * from "./contracts/event-envelope.js";
+export * from "./contracts/memory-record.js";
 
 export * from "./config/policy.js";
 export * from "./config/bots.js";

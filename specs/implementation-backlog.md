@@ -48,12 +48,15 @@ Drafted contract set:
 
 Implemented so far:
 - `packages/cephalon-ts/src/contracts/event-envelope.ts`
+- `packages/cephalon-ts/src/contracts/memory-record.ts`
 - `packages/cephalon-cljs/src/promethean/contracts/event_envelope.cljs`
+- `packages/cephalon-cljs/src/promethean/contracts/memory_record.cljs`
 - `packages/cephalon-cljs/src/promethean/bridge/cephalon_ts.cljs` boundary-envelope bridge helpers
 - `packages/cephalon-clj/src/promethean/contracts/event_envelope.clj`
+- `packages/cephalon-clj/src/promethean/contracts/memory_record.clj`
 - `packages/cephalon-clj/src/promethean/runtime/eventbus.clj` boundary-edge bus helpers
 
-Implementation and adapter work still remain after the draft, especially for memory, tool, and runtime-state surfaces.
+Implementation and adapter work still remain after the draft, especially for tool and runtime-state surfaces and for deeper live-runtime adoption of the new memory adapters.
 
 ## Phase 3 — choose convergence lines
 

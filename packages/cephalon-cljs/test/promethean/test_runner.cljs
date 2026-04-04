@@ -4,6 +4,7 @@
             [promethean.adapters.fs-test]
             [promethean.bridge.cephalon-ts-test]
             [promethean.contracts.event-envelope-test]
+            [promethean.contracts.memory-record-test]
             [promethean.contracts.markdown-frontmatter-test]
             [promethean.e2e.workflows-test]
             [promethean.eidolon.embed-test]
@@ -32,6 +33,7 @@
              'promethean.adapters.fs-test
              'promethean.bridge.cephalon-ts-test
              'promethean.contracts.event-envelope-test
+             'promethean.contracts.memory-record-test
              'promethean.contracts.markdown-frontmatter-test
              'promethean.e2e.workflows-test
              'promethean.eidolon.embed-test

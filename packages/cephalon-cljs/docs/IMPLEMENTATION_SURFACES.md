@@ -62,6 +62,13 @@ This is one of the best places to study Cephalon as an event-native agent runtim
 ### `src/promethean/memory/*`
 Memory schemas, storage, dedupe, and tags.
 
+### `src/promethean/contracts/memory_record.cljs`
+Boundary adapter for canonical cross-strata memory records.
+
+Why it matters:
+- it translates between canonical boundary memory records and CLJS-local memory shapes
+- it explicitly handles both the newer namespaced memory schema and older local memory-model/store shapes
+
 ### `src/promethean/eidolon/*`
 Embedding, similarity, vector-store, nexus keys, and nexus indexing surfaces.
 

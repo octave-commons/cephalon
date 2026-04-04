@@ -119,6 +119,13 @@ Persistent runtime path.
 ### `src/core/memory-compactor.ts`
 Summary/compaction path that tries to keep long-running memory usable.
 
+### `src/contracts/memory-record.ts`
+Boundary adapter for canonical cross-strata memory records.
+
+Why it matters:
+- it lets TS normalize its own memory shape and also ingest legacy CLJS/CLJ-style records at the boundary
+- it is the memory-side analogue of the event-envelope adapter
+
 ## Current tensions
 
 ### 1. `app.ts` vs `main.ts`
