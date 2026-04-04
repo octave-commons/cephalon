@@ -3,6 +3,7 @@
             [promethean.adapters.discord-test]
             [promethean.adapters.fs-test]
             [promethean.bridge.cephalon-ts-test]
+            [promethean.contracts.event-envelope-test]
             [promethean.contracts.markdown-frontmatter-test]
             [promethean.e2e.workflows-test]
             [promethean.eidolon.embed-test]
@@ -30,6 +31,7 @@
   (run-tests 'promethean.adapters.discord-test
              'promethean.adapters.fs-test
              'promethean.bridge.cephalon-ts-test
+             'promethean.contracts.event-envelope-test
              'promethean.contracts.markdown-frontmatter-test
              'promethean.e2e.workflows-test
              'promethean.eidolon.embed-test
