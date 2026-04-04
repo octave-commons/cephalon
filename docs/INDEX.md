@@ -12,8 +12,9 @@ This repo is the consolidation point for the **head** of the agent system.
 6. `history/` — absorbed historical specs and recovery docs
 7. `../specs/head-of-agent-system.md` — Cephalon's role in the architecture
 8. `../specs/package-lattice.md` — TS / CLJS / CLJ / recovered package relationships
-9. `../specs/recovered-clj-absorption.md` — absorption plan for the lost experiment
-10. `../specs/implementation-backlog.md` — convergence sequence after consolidation
+9. `../specs/boundary-contract.md` — cross-strata wire and handoff doctrine
+10. `../specs/recovered-clj-absorption.md` — absorption plan for the lost experiment
+11. `../specs/implementation-backlog.md` — convergence sequence after consolidation
 
 ## Package dossiers
 

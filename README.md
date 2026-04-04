@@ -13,9 +13,10 @@ This repo is the intended **single source of truth** for the Cephalon family ins
 5. `docs/ANNOTATED_SOURCE_EXCERPTS.md`
 6. `specs/head-of-agent-system.md`
 7. `specs/package-lattice.md`
-8. `specs/recovered-clj-absorption.md`
-9. `specs/implementation-backlog.md`
-10. package dossier indexes under `packages/*/docs/`
+8. `specs/boundary-contract.md`
+9. `specs/recovered-clj-absorption.md`
+10. `specs/implementation-backlog.md`
+11. package dossier indexes under `packages/*/docs/`
 
 ## Package lattice
 

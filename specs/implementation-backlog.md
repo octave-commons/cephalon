@@ -33,11 +33,20 @@ Turn the consolidated Cephalon canon into a legible, convergent program without 
 
 ## Phase 2 — boundary contracts between strata
 
-- [ ] define one shared event-envelope contract across TS, CLJS, and precursor CLJ paths
-- [ ] define one shared memory-record contract with clear required vs optional fields
-- [ ] define one shared tool-surface vocabulary for note, memory, Discord, browser, and runtime actions
-- [ ] define one runtime-state contract for graph/field/prompt summaries
-- [ ] revive the candidate runtime handoff flow from `packages/cephalon-ts/docs/runtime-handoff.md`
+Drafted contract set:
+- `specs/boundary-contract.md`
+- `specs/contracts/event-envelope.md`
+- `specs/contracts/memory-record.md`
+- `specs/contracts/tool-surface.md`
+- `specs/contracts/runtime-state-and-handoff.md`
+
+- [x] draft one shared event-envelope contract across TS, CLJS, and precursor CLJ paths
+- [x] draft one shared memory-record contract with clear required vs optional fields
+- [x] draft one shared tool-surface vocabulary for note, memory, Discord, browser, and runtime actions
+- [x] draft one runtime-state contract for graph/field/prompt summaries
+- [x] draft a revived candidate runtime handoff flow from `packages/cephalon-ts/docs/runtime-handoff.md`
+
+Implementation and adapter work still remain after the draft.
 
 ## Phase 3 — choose convergence lines
 
