@@ -8,24 +8,30 @@ This repo is the consolidation point for the **head** of the agent system.
 2. `CONSOLIDATION_MAP.md` — what was moved here and what remains historical
 3. `FORK_TALES_SOURCE_MAP.md` — upstream conceptual roots
 4. `OPENCODE_SESSION_PROVENANCE.md` — recovery trail from sessions/specs
-5. `history/` — absorbed historical specs and recovery docs
-6. `../specs/head-of-agent-system.md` — Cephalon's role in the architecture
-7. `../specs/package-lattice.md` — TS / CLJS / CLJ / recovered package relationships
-8. `../specs/recovered-clj-absorption.md` — absorption plan for the lost experiment
+5. `ANNOTATED_SOURCE_EXCERPTS.md` — high-signal code landmarks across TS, CLJS, CLJ, and recovered strata
+6. `history/` — absorbed historical specs and recovery docs
+7. `../specs/head-of-agent-system.md` — Cephalon's role in the architecture
+8. `../specs/package-lattice.md` — TS / CLJS / CLJ / recovered package relationships
+9. `../specs/recovered-clj-absorption.md` — absorption plan for the lost experiment
+10. `../specs/implementation-backlog.md` — convergence sequence after consolidation
 
-## Package map
+## Package dossiers
 
 ### `packages/cephalon-ts`
 Current TypeScript implementation of the user-facing head/hive/runtime path.
+- dossier entry: `../packages/cephalon-ts/docs/INDEX.md`
 
 ### `packages/cephalon-cljs`
 ClojureScript always-running mind, ECS world, eidolon memory, and note corpus.
+- dossier entry: `../packages/cephalon-cljs/docs/INDEX.md`
 
 ### `packages/cephalon-clj`
 JVM Clojure skeleton and precursor runtime.
+- dossier entry: `../packages/cephalon-clj/docs/INDEX.md`
 
 ### `recovered/cephalon-clj`
 Recovered archive of the lost two-process brain/discord-io/shared experiment.
+- dossier entry: `../recovered/cephalon-clj/docs/INDEX.md`
 
 ## History dossier
 

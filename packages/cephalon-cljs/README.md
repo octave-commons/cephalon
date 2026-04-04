@@ -7,10 +7,12 @@ A ClojureScript implementation of the Cephalon "always-running mind" based on th
 ## Reading order
 
 1. `../../README.md`
-2. `../../docs/CONSOLIDATION_MAP.md`
-3. `docs/notes/cephalon/cephalon-mvp-spec.md`
-4. `docs/notes/cephalon/cephalon-nexus-index-v01.md`
-5. `docs/notes/cephalon/cephalon-daimoi-v01.md`
+2. `../../docs/INDEX.md`
+3. `docs/INDEX.md`
+4. `specs/ecs-runtime-and-effects.md`
+5. `docs/notes/cephalon/cephalon-mvp-spec.md`
+6. `docs/notes/cephalon/cephalon-nexus-index-v01.md`
+7. `docs/notes/cephalon/cephalon-daimoi-v01.md`
 
 ## Architecture Overview
 

@@ -10,8 +10,12 @@ JVM Clojure skeleton reflecting the architecture we discussed:
 ## Reading order
 
 1. `../../README.md`
-2. `../../specs/recovered-clj-absorption.md`
-3. `../../recovered/cephalon-clj/spec/architecture.md`
+2. `../../docs/INDEX.md`
+3. `docs/INDEX.md`
+4. `specs/precursor-runtime.md`
+5. `specs/absorption-opportunities.md`
+6. `../../specs/recovered-clj-absorption.md`
+7. `../../recovered/cephalon-clj/spec/architecture.md`
 
 ## Run
 ```bash

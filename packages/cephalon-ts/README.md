@@ -8,9 +8,11 @@ Cephalon is an "always-running mind" with vector memory, persistent memory, and 
 ## Reading order
 
 1. `../../README.md`
-2. `../../docs/CONSOLIDATION_MAP.md`
-3. `README_MIGRATION.md`
-4. `../cephalon-cljs/docs/notes/cephalon/cephalon-mvp-spec.md`
+2. `../../docs/INDEX.md`
+3. `docs/INDEX.md`
+4. `README_MIGRATION.md`
+5. `specs/runtime-topology.md`
+6. `../cephalon-cljs/docs/notes/cephalon/cephalon-mvp-spec.md`
 
 The **Cephalon Hive** spawns multiple cephalons from a single process, each with:
 - Distinct Discord identity and token
