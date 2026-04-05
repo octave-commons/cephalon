@@ -67,13 +67,13 @@ Strongest current anchors:
 - `specs/boundary-contract.md`
 - `specs/implementation-backlog.md`
 - `packages/cephalon-ts/src/openplanner/client.ts`
-- `packages/cephalon-ts/src/mind/local-mind-graph.ts`
+- `packages/cephalon-ts/src/mind/graph-weaver.ts`
 - `packages/cephalon-ts/docs/event-native-engagement-spec.md`
 
 Current reading:
 
 - Cephalon already emits memory events into OpenPlanner.
-- Cephalon now has an internal `LocalMindGraph` helper, and the old `src/mind/graph-weaver.ts` is only a compatibility shim. The helper is a **local conversational trace graph**, not the same thing as the external `graph-weaver` repo.
+- The tracked Cephalon branch should still be read through `src/mind/graph-weaver.ts`; any `LocalMindGraph` rename or helper split is emerging work, not a fully landed repo fact.
 - Cephalon's strongest forward-looking spec already says the mouth should act only after the world moves, the field bends, ants notice, daimoi walk, and the graph tightens.
 
 ### OpenPlanner
@@ -196,12 +196,12 @@ Relevant anchors there:
 
 There are two different things using the same name.
 
-- Cephalon TS `src/mind/local-mind-graph.ts` = local conversational/social trace graph (`src/mind/graph-weaver.ts` remains only as a deprecated shim)
+- Cephalon TS `src/mind/graph-weaver.ts` = the tracked mind-local topology helper surface in this branch
 - external `graph-weaver` repo = graph workbench service with query/preview/mutation surfaces
 
 This is not fatal, but it must be named explicitly.
 The Cephalon helper is a **mind-local topology helper**, not the canonical graph workbench.
-That renaming has now started: the local helper lives in `src/mind/local-mind-graph.ts`, and Cephalon also has a separate `GraphWeaverWorkbenchClient` for the true workbench surface.
+The workbench split is already visible because Cephalon has a separate `GraphWeaverWorkbenchClient` for the real external workbench surface, even though the local helper rename is not yet a settled tracked fact in this PR.
 
 ### 2. Graph-Weaver self-scanner lineage vs lake-workbench future
 
