@@ -201,7 +201,7 @@ There are two different things using the same name.
 
 This is not fatal, but it must be named explicitly.
 The Cephalon helper is a **mind-local topology helper**, not the canonical graph workbench.
-The workbench split is already visible because Cephalon has a separate `GraphWeaverWorkbenchClient` for the real external workbench surface, even though the local helper rename is not yet a settled tracked fact in this PR.
+The workbench split is already visible because the external graph-workbench seam is being separated from the local helper surface, even though that rename/split is not yet a settled tracked fact in this PR.
 
 ### 2. Graph-Weaver self-scanner lineage vs lake-workbench future
 
