@@ -67,13 +67,13 @@ Strongest current anchors:
 - `specs/boundary-contract.md`
 - `specs/implementation-backlog.md`
 - `packages/cephalon-ts/src/openplanner/client.ts`
-- `packages/cephalon-ts/src/mind/graph-weaver.ts`
+- `packages/cephalon-ts/src/mind/local-mind-graph.ts`
 - `packages/cephalon-ts/docs/event-native-engagement-spec.md`
 
 Current reading:
 
 - Cephalon already emits memory events into OpenPlanner.
-- Cephalon already has an internal `GraphWeaver` helper, but that helper is a **local conversational trace graph**, not the same thing as the external `graph-weaver` repo.
+- Cephalon now has an internal `LocalMindGraph` helper, and the old `src/mind/graph-weaver.ts` is only a compatibility shim. The helper is a **local conversational trace graph**, not the same thing as the external `graph-weaver` repo.
 - Cephalon's strongest forward-looking spec already says the mouth should act only after the world moves, the field bends, ants notice, daimoi walk, and the graph tightens.
 
 ### OpenPlanner
@@ -196,12 +196,12 @@ Relevant anchors there:
 
 There are two different things using the same name.
 
-- Cephalon TS `src/mind/graph-weaver.ts` = local conversational/social trace graph
+- Cephalon TS `src/mind/local-mind-graph.ts` = local conversational/social trace graph (`src/mind/graph-weaver.ts` remains only as a deprecated shim)
 - external `graph-weaver` repo = graph workbench service with query/preview/mutation surfaces
 
 This is not fatal, but it must be named explicitly.
 The Cephalon helper is a **mind-local topology helper**, not the canonical graph workbench.
-Long-term, it should likely become a bounded adapter/client to the true graph workbench while keeping any short-horizon local trace memory under a more honest name.
+That renaming has now started: the local helper lives in `src/mind/local-mind-graph.ts`, and Cephalon also has a separate `GraphWeaverWorkbenchClient` for the true workbench surface.
 
 ### 2. Graph-Weaver self-scanner lineage vs lake-workbench future
 
@@ -255,7 +255,7 @@ That reuse is not accidental; it reveals the intended future seam between Cephal
 
 ---
 
-## The five convergence lines
+## The six convergence lines
 
 ### Line 1 — Lake line
 

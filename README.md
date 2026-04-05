@@ -19,7 +19,7 @@ This repo is the intended **single source of truth** for the Cephalon family ins
 11. `specs/boundary-contract.md`
 12. `specs/recovered-clj-absorption.md`
 13. `specs/implementation-backlog.md`
-11. package dossier indexes under `packages/*/docs/`
+14. package dossier indexes under `packages/*/docs/`
 
 ## Package lattice
 
