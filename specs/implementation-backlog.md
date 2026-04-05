@@ -64,10 +64,12 @@ Implementation and adapter work still remain after the draft, especially for too
 - [ ] extract shared doctrine and schemas into repo-level contracts instead of duplicating them per package
 - [ ] choose where the canonical implementation of eidolon, nexus, and prompt-field logic should live
 - [ ] choose whether the control plane belongs inside the TS runtime only or as a cross-package contract
+- [ ] turn `packages/cephalon-ts/src/mind/graph-weaver.ts` into an honestly named local trace helper plus a bounded adapter to the external `graph-weaver` workbench service
+- [ ] implement the OpenPlanner-backed graph query seam described in `specs/cephalon-openplanner-graph-query-contract.md`
 
 ## Phase 4 — package-family polish
 
-- [ ] add one root matrix relating Cephalon to `graph-runtime`, `graph-weaver`, `myrmex`, `daimoi`, and `simulacron`
+- [x] add one root matrix relating Cephalon to `graph-runtime`, `graph-weaver`, `myrmex`, `daimoi`, and `simulacron` via `specs/adjacent-systems-matrix.md` (also includes OpenPlanner and current Knoxx roadmap anchors)
 - [ ] add reproducible dev profiles for `duck`, `openhax`, `openskull`, and `error`
 - [ ] define which repo-local docs are doctrine, which are historical, and which are implementation notes
 - [ ] add small architecture diagrams for the TS runtime, CLJS ECS loop, and recovered two-process branch

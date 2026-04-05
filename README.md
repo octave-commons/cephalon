@@ -12,10 +12,13 @@ This repo is the intended **single source of truth** for the Cephalon family ins
 4. `docs/OPENCODE_SESSION_PROVENANCE.md`
 5. `docs/ANNOTATED_SOURCE_EXCERPTS.md`
 6. `specs/head-of-agent-system.md`
-7. `specs/package-lattice.md`
-8. `specs/boundary-contract.md`
-9. `specs/recovered-clj-absorption.md`
-10. `specs/implementation-backlog.md`
+7. `specs/adjacent-systems-matrix.md`
+8. `specs/graph-workbench-adapter.md`
+9. `specs/cephalon-openplanner-graph-query-contract.md`
+10. `specs/package-lattice.md`
+11. `specs/boundary-contract.md`
+12. `specs/recovered-clj-absorption.md`
+13. `specs/implementation-backlog.md`
 11. package dossier indexes under `packages/*/docs/`
 
 ## Package lattice
