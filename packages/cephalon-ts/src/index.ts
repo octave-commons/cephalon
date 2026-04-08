@@ -14,8 +14,11 @@ export * from "./core/mongodb-memory-store.js";
 
 export * from "./discord/api-client.js";
 export * from "./discord/integration.js";
+export * from "./graph-workbench/client.js";
 
 export * from "./llm/ollama.js";
+export * from "./openplanner/client.js";
+export * from "./openplanner/graph-client.js";
 
 export * from "./sessions/manager.js";
 export * from "./runtime/temporal.js";

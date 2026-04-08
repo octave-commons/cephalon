@@ -40,8 +40,8 @@ This spec is an extraction and compression of ideas already present in the works
 
 And in the current TS runtime:
 
-- `packages/cephalon-ts/src/mind/graph-weaver.ts`
-  - already builds a live graph of guilds, channels, authors, messages, URLs, assets
+- `packages/cephalon-ts/src/mind/local-mind-graph.ts`
+  - already builds a live graph of guilds, channels, authors, messages, URLs, assets as Cephalon's short-horizon local trace graph
 - `packages/cephalon-ts/src/mind/eidolon-field.ts`
   - already maintains an evolving eight-dimensional field state
 - `packages/cephalon-ts/src/mind/channel-aco.ts`
@@ -242,7 +242,7 @@ Everything else can remain as event-log material plus probabilistic counts.
 
 ### 5.1 Graph Weaver
 
-Graph Weaver should stop being “nice context garnish” and become a primary live-state organ.
+The external Graph-Weaver workbench should stop being “nice context garnish” and become a primary live-state organ.
 
 Every event updates the graph:
 
@@ -394,7 +394,7 @@ The main deficit is not tool count alone; it is **event selection and action tim
 
 The current codebase should evolve toward:
 
-- `GraphWeaver` as an always-fed topology engine
+- `LocalMindGraph` as an always-fed short-horizon topology engine, plus the external Graph-Weaver workbench as preview/inspection surface
 - `EidolonFieldState` as a structured live-signal accumulator
 - a new `SyntheticEventEngine`
 - a new `NoveltyModel` backed by tries/ngrams/timing buckets

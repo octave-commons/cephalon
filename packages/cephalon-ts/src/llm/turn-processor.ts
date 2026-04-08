@@ -18,6 +18,8 @@ import { OllamaProvider, type LLMProvider, createOllamaConfig } from "./provider
 import type { ToolExecutor } from "./tools/executor.js";
 import type { MemoryStore } from "../core/memory-store.js";
 import type { DiscordApiClient } from "../discord/api-client.js";
+import type { GraphWorkbenchClient } from "../graph-workbench/client.js";
+import type { CephalonGraphQueryClient } from "../openplanner/graph-client.js";
 import { OutputDedupe } from "../mind/output-dedupe.js";
 import {
   assembleContext,
@@ -52,6 +54,8 @@ export class TurnProcessor {
   private discordApiClient: DiscordApiClient;
   private outputDedupe: OutputDedupe;
   private mindQueue?: CephalonMindQueue;
+  private graphQueryClient?: CephalonGraphQueryClient;
+  private graphWorkbenchClient?: GraphWorkbenchClient;
 
   constructor(
     provider: LLMProvider,
@@ -61,6 +65,8 @@ export class TurnProcessor {
     policy: CephalonPolicy,
     discordApiClient: DiscordApiClient,
     mindQueue?: CephalonMindQueue,
+    graphQueryClient?: CephalonGraphQueryClient,
+    graphWorkbenchClient?: GraphWorkbenchClient,
   ) {
     this.provider = provider;
     this.executor = executor;
@@ -70,6 +76,162 @@ export class TurnProcessor {
     this.discordApiClient = discordApiClient;
     this.outputDedupe = new OutputDedupe(policy.dedupe);
     this.mindQueue = mindQueue;
+    this.graphQueryClient = graphQueryClient;
+    this.graphWorkbenchClient = graphWorkbenchClient;
+  }
+
+  private extractGraphSeed(event: CephalonEvent, session: Session): { query?: string; url?: string } | null {
+    if (event.type === "system.tick") {
+      return null;
+    }
+
+    let raw = "";
+    if (event.type === "discord.message.created" || event.type === "discord.message.edited") {
+      raw = typeof (event.payload as { content?: unknown }).content === "string"
+        ? (event.payload as { content: string }).content
+        : "";
+    } else if (event.type === "admin.command") {
+      const payload = event.payload as { command?: unknown; args?: unknown };
+      const command = typeof payload.command === "string" ? payload.command : "";
+      const args = Array.isArray(payload.args)
+        ? payload.args.filter((entry): entry is string => typeof entry === "string")
+        : [];
+      raw = [command, ...args].join(" ");
+    }
+
+    if (!raw.trim() && session.attentionFocus) {
+      raw = session.attentionFocus;
+    }
+
+    const url = raw.match(/https?:\/\/\S+/i)?.[0];
+    const query = raw
+      .replace(/https?:\/\/\S+/gi, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 240);
+
+    if (!url && query.length < 4) {
+      return null;
+    }
+
+    return {
+      query: query.length >= 4 ? query : undefined,
+      url: url?.trim(),
+    };
+  }
+
+  private formatGraphNodeLine(node: { label: string; lake?: string; nodeType?: string }): string {
+    const qualifiers = [node.lake, node.nodeType].filter(Boolean).join("/");
+    return qualifiers ? `- ${node.label} [${qualifiers}]` : `- ${node.label}`;
+  }
+
+  private formatGraphEdgeLine(
+    edge: { source: string; target: string; edgeType?: string },
+    nodeLabels: Map<string, string>,
+  ): string {
+    const source = nodeLabels.get(edge.source) ?? edge.source;
+    const target = nodeLabels.get(edge.target) ?? edge.target;
+    return `- ${source} -[${edge.edgeType ?? "relation"}]-> ${target}`;
+  }
+
+  private async buildGraphContextMessage(session: Session, event: CephalonEvent): Promise<ChatMessage | null> {
+    if (!this.graphQueryClient) {
+      return null;
+    }
+
+    const seed = this.extractGraphSeed(event, session);
+    if (!seed) {
+      return null;
+    }
+
+    try {
+      const searchResult = seed.query
+        ? await this.graphQueryClient.search(seed.query, { limit: 3, edgeLimit: 6 })
+        : null;
+      const anchorId = seed.url
+        ?? searchResult?.nodes[0]?.id
+        ?? undefined;
+      const neighborResult = anchorId
+        ? await this.graphQueryClient.neighbors(anchorId, { limit: 6 })
+        : null;
+
+      const hasSearch = Boolean(searchResult && (searchResult.nodes.length > 0 || searchResult.edges.length > 0));
+      const hasNeighbors = Boolean(neighborResult && neighborResult.edges.length > 0);
+      if (!hasSearch && !hasNeighbors) {
+        return null;
+      }
+
+      const lines: string[] = [
+        "Canonical graph context from OpenPlanner. Use only when it materially improves grounding; do not mention the graph unless it helps.",
+      ];
+
+      if (searchResult && searchResult.nodes.length > 0) {
+        lines.push("Graph hits:");
+        for (const node of searchResult.nodes.slice(0, 3)) {
+          lines.push(this.formatGraphNodeLine(node));
+        }
+      }
+
+      if (neighborResult?.anchor) {
+        const nodeLabels = new Map<string, string>(neighborResult.nodes.map((node) => [node.id, node.label]));
+        nodeLabels.set(neighborResult.anchor.id, neighborResult.anchor.label);
+        lines.push(`Neighbor context for ${neighborResult.anchor.label}:`);
+        for (const edge of neighborResult.edges.slice(0, 4)) {
+          lines.push(this.formatGraphEdgeLine(edge, nodeLabels));
+        }
+      }
+
+      return {
+        role: "system",
+        content: lines.join("\n"),
+      };
+    } catch (error) {
+      console.warn("[TurnProcessor] Graph context unavailable", error instanceof Error ? error.message : String(error));
+      return null;
+    }
+  }
+
+  private normalizeGraphWorkbenchNodeId(anchorId: string): string {
+    const raw = anchorId.trim();
+    if (/^https?:\/\//i.test(raw)) {
+      try {
+        const url = new URL(raw);
+        url.hash = "";
+        if (!url.pathname) url.pathname = "/";
+        return `web:url:${url.toString()}`;
+      } catch {
+        return `web:url:${raw}`;
+      }
+    }
+    return raw;
+  }
+
+  private async buildGraphWorkbenchPreviewMessage(anchorId: string): Promise<ChatMessage | null> {
+    if (!this.graphWorkbenchClient) {
+      return null;
+    }
+
+    try {
+      const preview = await this.graphWorkbenchClient.nodePreview(this.normalizeGraphWorkbenchNodeId(anchorId), 1200);
+      const body = typeof preview?.body === "string"
+        ? preview.body.replace(/\s+/g, " ").trim()
+        : "";
+      if (!preview || !body || preview.format === "binary" || preview.format === "error") {
+        return null;
+      }
+
+      const snippet = body.length > 420 ? `${body.slice(0, 419)}…` : body;
+      return {
+        role: "system",
+        content: [
+          "Workbench preview from Graph-Weaver. Treat this as a preview aid, not as canonical truth over the lake.",
+          `Preview (${preview.format}): ${snippet}`,
+        ].join("\n"),
+      };
+    } catch (error) {
+      console.warn("[TurnProcessor] Graph workbench preview unavailable", error instanceof Error ? error.message : String(error));
+      return null;
+    }
   }
 
   /**
@@ -227,6 +389,17 @@ export class TurnProcessor {
 
       // Build conversation history for tool loop
       const messages: ChatMessage[] = [...context.messages];
+      const graphContextMessage = await this.buildGraphContextMessage(session, event);
+      if (graphContextMessage) {
+        messages.push(graphContextMessage);
+      }
+      const graphSeed = this.extractGraphSeed(event, session);
+      const graphWorkbenchPreview = graphSeed?.url
+        ? await this.buildGraphWorkbenchPreviewMessage(graphSeed.url)
+        : null;
+      if (graphWorkbenchPreview) {
+        messages.push(graphWorkbenchPreview);
+      }
       const tools = interactiveDirectReply ? [] : this.executor.getToolDefinitions(session.id);
 
       const isTickEvent = event.type === "system.tick";

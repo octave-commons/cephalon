@@ -13,7 +13,7 @@ and define the intended convergence path.
 
 Right now, two different graph ideas share one name:
 
-1. `packages/cephalon-ts/src/mind/graph-weaver.ts`
+1. `packages/cephalon-ts/src/mind/local-mind-graph.ts`
    - a local conversational/social trace graph inside the head runtime
 2. `orgs/octave-commons/graph-weaver`
    - the external graph workbench service with query, preview, mutation, and OpenPlanner import surfaces
@@ -36,7 +36,7 @@ The long-term direction is:
 
 ### What the internal helper does well
 
-`packages/cephalon-ts/src/mind/graph-weaver.ts` is good at:
+`packages/cephalon-ts/src/mind/local-mind-graph.ts` is good at:
 
 - ingesting Discord message topology
 - tracking channels/authors/messages/links/assets
@@ -135,7 +135,7 @@ If Knoxx becomes the packaged agentic product, Cephalon should eventually own th
 
 ### Phase 1 — name the split
 
-- document that Cephalon's current `GraphWeaver` is a local mind graph helper
+- document that Cephalon's local trace graph is not the canonical workbench
 - stop treating it as the canonical workbench
 
 ### Phase 2 — add adapter seam

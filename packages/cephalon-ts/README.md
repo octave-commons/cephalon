@@ -1,6 +1,17 @@
 # Cephalon MVP Implementation
 
-> Canonical home: `orgs/octave-commons/cephalon/packages/cephalon-ts`
+> ⚠️ **DEPRECATED**
+>
+> This TypeScript implementation is deprecated. The canonical runtime is now the ClojureScript ECS implementation at `../cephalon-cljs/`.
+>
+> **Migration path:**
+> 1. See `../../specs/cljs-ts-feature-parity-audit.md` for current gaps
+> 2. Critical gaps (Turn Processor, Tool Executor, MongoDB) will be added to CLJS
+> 3. This package will be retired after CLJS achieves feature parity
+>
+> For new development, use `@promethean-os/cephalon-cljs` or the future decomposed packages.
+
+> Canonical home: `orgs/octave-commons/cephalon/packages/cephalon-cljs`
 
 ## Overview
 Cephalon is an "always-running mind" with vector memory, persistent memory, and event subscriptions.
