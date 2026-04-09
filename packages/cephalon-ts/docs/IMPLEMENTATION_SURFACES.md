@@ -24,7 +24,7 @@ It currently owns:
 - LLM + tool executor + turn processor wiring
 - session creation from the eight-circuit manifest
 - Discord/IRC integrations
-- mind helpers (`GraphWeaver`, `RssPoller`, `EidolonFieldState`, `PromptFieldEngine`, `CephalonMindQueue`)
+- mind helpers (`LocalMindGraph`, `RssPoller`, `EidolonFieldState`, `PromptFieldEngine`, `CephalonMindQueue`)
 - temporal scheduling for circuit ticks
 - Memory UI startup
 
@@ -93,8 +93,10 @@ Memory UI and runtime inspection surface.
 
 ## Mind-side helpers inside the TS package
 
-### `src/mind/graph-weaver.ts`
-Message/link/asset graph trace.
+### `src/mind/local-mind-graph.ts`
+Message/link/asset graph trace for the head's short-horizon local topology.
+
+`src/mind/graph-weaver.ts` now exists only as a deprecated compatibility shim so the external workbench keeps the Graph-Weaver name.
 
 ### `src/mind/eidolon-field.ts`
 Eight-dimension field weather derived from live message content.

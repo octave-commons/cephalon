@@ -1,8 +1,10 @@
 # Cephalon ClojureScript Implementation
 
-> Canonical home: `orgs/octave-commons/cephalon/packages/cephalon-cljs`
+> **Canonical runtime** for the Cephalon agent system.
+>
+> This is the reference implementation. The TypeScript package (`cephalon-ts`) is deprecated and will be retired after feature parity is achieved.
 
-A ClojureScript implementation of the Cephalon "always-running mind" based on the specification in `docs/notes/cephalon/`.
+A ClojureScript implementation of the Cephalon "always-running mind" using Entity-Component-System (ECS) architecture.
 
 ## Reading order
 
@@ -10,40 +12,117 @@ A ClojureScript implementation of the Cephalon "always-running mind" based on th
 2. `../../docs/INDEX.md`
 3. `docs/INDEX.md`
 4. `specs/ecs-runtime-and-effects.md`
-5. `docs/notes/cephalon/cephalon-mvp-spec.md`
-6. `docs/notes/cephalon/cephalon-nexus-index-v01.md`
-7. `docs/notes/cephalon/cephalon-daimoi-v01.md`
+5. `specs/cljs-ts-feature-parity-audit.md`
+6. `docs/notes/cephalon/cephalon-mvp-spec.md`
 
-## Architecture Overview
+---
+
+## ECS Architecture
+
+Cephalon uses Entity-Component-System (ECS) architecture, where:
+
+- **Entities** are unique IDs with attached components
+- **Components** are pure data (maps with namespaced keys)
+- **Systems** are pure functions that transform the world
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                         Cephalon Runtime                             │
+│                          ECS WORLD                                   │
 ├─────────────────────────────────────────────────────────────────────┤
-│  ┌─────────────┐   ┌─────────────┐   ┌─────────────────────────┐   │
-│  │ ECS World   │──▶│ Event Bus   │──▶│ Session Manager         │   │
-│  │ (tick loop) │   │ (in/out)    │   │ [related, persistent,   │   │
-│  └─────────────┘   └─────────────┘    │  recent] assembly       │   │
-│         │                               └─────────────────────────┘   │
-│         │                                       │                     │
-│         ▼                                       ▼                     │
-│  ┌─────────────┐                       ┌─────────────────────────┐   │
-│  │ Systems     │                       │ LLM Provider            │   │
-│  │ - Route     │                       │ (qwen3-vl-2b)           │   │
-│  │ - Cephalon  │                       └─────────────────────────┘   │
-│  │ - Sentinel  │                                               │      │
-│  └─────────────┘                                               │      │
-│                                                                ▼      │
-│  ┌───────────────────────────────────────────────────────────────┐   │
-│  │                        Memory Store                           │   │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────┐  │   │
-│  │  │ Memories │  │ Events   │  │ Vectors  │  │ Nexus Index  │  │   │
-│  │  └──────────┘  └──────────┘  └──────────┘  └──────────────┘  │   │
-│  └───────────────────────────────────────────────────────────────┘   │
+│  {:tick 0                  ;; Current tick number                    │
+│   :time-ms 0               ;; Current wall-clock time                │
+│   :entities {...}          ;; Entity ID → component map              │
+│   :events-in []            ;; Incoming events for this tick          │
+│   :events-out []           ;; Events emitted this tick               │
+│   :effects []              ;; Side effects to execute                │
+│   :effects/pending {...}   ;; In-flight effects                      │
+│   :effects/stats {...}     ;; Effect statistics                      │
+│   :env {...}}              ;; Environment (config, clients, adapters)│
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-## Project Structure
+### Tick Loop
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                        TICK CYCLE                                 │
+│                                                                   │
+│  1. Swap incoming/outgoing event queues                           │
+│  2. Clear effects queue                                          │
+│  3. Run systems in order:                                        │
+│     ┌─────────────────────────────────────────────────────────┐  │
+│     │ sys/route      → Route events to session queues         │  │
+│     │ sys/memory     → Ingest events into memory store        │  │
+│     │ sys/eidolon    → Update attention/salience index        │  │
+│     │ sys/eidolon-vectors → Update vector index               │  │
+│     │ sys/sentinel   → Watch file system for notes changes    │  │
+│     │ sys/cephalon   → Execute agent logic (LLM calls)        │  │
+│     │ sys/effects    → Flush effects queue (async)            │  │
+│     └─────────────────────────────────────────────────────────┘  │
+│  4. Emit events from systems                                     │
+│  5. Execute effects asynchronously                               │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### Entity Types
+
+```clojure
+;; Cephalon (the agent itself)
+{:cephalon/name "Duck"
+ :cephalon/policy {...}
+ :cephalon/shared-state {}
+ :cephalon/sessions #{session-eid}}
+
+;; Session (a facet/aspect of the agent)
+{:session/name "janitor"
+ :session/cephalon ceph-eid
+ :session/circuit :c1-survival
+ :session/focus "mvp janitor"
+ :session/subscriptions {...}
+ :session/queue []
+ :session/recent []
+ :session/status :idle}
+
+;; Memory record
+{:memory/id "uuid"
+ :memory/ts 1234567890
+ :memory/kind :discord
+ :memory/role :user
+ :memory/text "..."
+ :memory/tags #{}
+ :memory/nexus-keys #{}}
+```
+
+### Systems
+
+| System | Purpose |
+|--------|---------|
+| `sys/route` | Route events to session queues based on subscriptions |
+| `sys/memory` | Ingest events into memory store, emit to OpenPlanner |
+| `sys/eidolon` | Update attention/salience index (nexus) |
+| `sys/eidolon-vectors` | Update vector embeddings |
+| `sys/sentinel` | Watch filesystem for notes changes |
+| `sys/cephalon` | Execute agent logic (LLM calls, tool execution) |
+| `sys/effects` | Flush effects queue with concurrency limits |
+
+### Effects System
+
+CLJS has a sophisticated effects system with:
+- Configurable concurrency (`:max-inflight 8`)
+- Timeout handling (`:timeout-ms 60000`)
+- Retention of completed effects (`:retain-completed 600`)
+- Async promise-based execution
+
+```clojure
+{:effect/id "uuid"
+ :effect/type :llm/chat
+ :effect/enqueued-ts 1234567890
+ :model "qwen3-vl-2b"
+ :messages [...]
+ :tools [...]}
+```
+
+---
 
 ```
 orgs/octave-commons/cephalon/packages/cephalon-cljs/

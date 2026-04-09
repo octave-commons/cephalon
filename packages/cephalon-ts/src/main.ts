@@ -30,10 +30,12 @@ import type {
   TemporalScheduleFiredPayload,
 } from "./types/index.js";
 import { MemoryUIServer } from "./ui/server.js";
+import { GraphWeaverWorkbenchClient, createDefaultGraphWorkbenchConfig } from "./graph-workbench/client.js";
 import {
   OpenPlannerClient,
   createDefaultOpenPlannerConfig,
 } from "./openplanner/client.js";
+import { OpenPlannerGraphQueryClient } from "./openplanner/graph-client.js";
 import {
   getBotConfig,
   getBotIdFromEnv,
@@ -95,8 +97,20 @@ async function main(): Promise<void> {
   const openPlannerConfigured = Boolean(
     process.env.OPENPLANNER_API_BASE_URL || process.env.OPENPLANNER_URL,
   );
-  const openPlannerClient = openPlannerConfigured
-    ? new OpenPlannerClient(createDefaultOpenPlannerConfig())
+  const openPlannerConfig = openPlannerConfigured
+    ? createDefaultOpenPlannerConfig()
+    : undefined;
+  const openPlannerClient = openPlannerConfig
+    ? new OpenPlannerClient(openPlannerConfig)
+    : undefined;
+  const openPlannerGraphQueryClient = openPlannerConfig
+    ? new OpenPlannerGraphQueryClient(openPlannerConfig)
+    : undefined;
+  const graphWorkbenchConfigured = Boolean(
+    process.env.GRAPH_WORKBENCH_BASE_URL || process.env.GRAPH_WEAVER_BASE_URL || process.env.GRAPH_WEAVER_URL,
+  );
+  const graphWorkbenchClient = graphWorkbenchConfigured
+    ? new GraphWeaverWorkbenchClient(createDefaultGraphWorkbenchConfig())
     : undefined;
 
   // Initialize memory store (use InMemory for development)
@@ -149,6 +163,8 @@ async function main(): Promise<void> {
     policy,
     discordApiClient,
     mindQueue,
+    openPlannerGraphQueryClient,
+    graphWorkbenchClient,
   );
   console.log("[TurnProcessor] Initialized");
 

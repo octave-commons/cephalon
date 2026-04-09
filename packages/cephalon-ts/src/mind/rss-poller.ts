@@ -1,4 +1,4 @@
-import type { GraphWeaver } from "./graph-weaver.js";
+import type { LocalMindGraph } from "./local-mind-graph.js";
 
 export interface FeedItem {
   title: string;
@@ -29,13 +29,13 @@ function parseRssItems(xml: string): FeedItem[] {
 
 export class RssPoller {
   private readonly feeds: string[];
-  private readonly graphWeaver?: GraphWeaver;
+  private readonly localMindGraph?: LocalMindGraph;
   private readonly items = new Map<string, FeedItem[]>();
   private timer: NodeJS.Timeout | null = null;
   private readonly pollMs: number;
 
-  constructor(graphWeaver?: GraphWeaver) {
-    this.graphWeaver = graphWeaver;
+  constructor(localMindGraph?: LocalMindGraph) {
+    this.localMindGraph = localMindGraph;
     this.feeds = (process.env.CEPHALON_RSS_FEEDS || "")
       .split(/[\n,]+/)
       .map((value) => value.trim())
@@ -66,7 +66,7 @@ export class RssPoller {
         const xml = await response.text();
         const parsed = parseRssItems(xml);
         this.items.set(feed, parsed.slice(0, 8));
-        this.graphWeaver?.ingestFeedItems(feed, parsed.slice(0, 8));
+        this.localMindGraph?.ingestFeedItems(feed, parsed.slice(0, 8));
       } catch {
         // ignore transient feed failures
       }

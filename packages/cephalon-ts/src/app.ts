@@ -37,9 +37,11 @@ import type {
 } from "./types/index.js";
 import type { ChromaMemoryStore } from "./chroma/client.js";
 import { MemoryUIServer } from "./ui/server.js";
+import { GraphWeaverWorkbenchClient, createDefaultGraphWorkbenchConfig } from "./graph-workbench/client.js";
 import { OpenPlannerClient, createDefaultOpenPlannerConfig } from "./openplanner/client.js";
+import { OpenPlannerGraphQueryClient } from "./openplanner/graph-client.js";
 import { EIGHT_CIRCUIT_CONFIGS } from "./circuits.js";
-import { GraphWeaver } from "./mind/graph-weaver.js";
+import { LocalMindGraph } from "./mind/local-mind-graph.js";
 import { RssPoller } from "./mind/rss-poller.js";
 import { EidolonFieldState } from "./mind/eidolon-field.js";
 import { PromptFieldEngine } from "./mind/prompt-field.js";
@@ -127,8 +129,20 @@ export async function createCephalonApp(
   const openPlannerConfigured = Boolean(
     process.env.OPENPLANNER_API_BASE_URL || process.env.OPENPLANNER_URL,
   );
-  const openPlannerClient = openPlannerConfigured
-    ? new OpenPlannerClient(createDefaultOpenPlannerConfig())
+  const openPlannerConfig = openPlannerConfigured
+    ? createDefaultOpenPlannerConfig()
+    : undefined;
+  const openPlannerClient = openPlannerConfig
+    ? new OpenPlannerClient(openPlannerConfig)
+    : undefined;
+  const openPlannerGraphQueryClient = openPlannerConfig
+    ? new OpenPlannerGraphQueryClient(openPlannerConfig)
+    : undefined;
+  const graphWorkbenchConfigured = Boolean(
+    process.env.GRAPH_WORKBENCH_BASE_URL || process.env.GRAPH_WEAVER_BASE_URL || process.env.GRAPH_WEAVER_URL,
+  );
+  const graphWorkbenchClient = graphWorkbenchConfigured
+    ? new GraphWeaverWorkbenchClient(createDefaultGraphWorkbenchConfig())
     : undefined;
 
   // Choose memory store (MongoDB if configured)
@@ -180,8 +194,8 @@ export async function createCephalonApp(
     };
   }
 
-  const graphWeaver = new GraphWeaver();
-  const rssPoller = new RssPoller(graphWeaver);
+  const localMindGraph = new LocalMindGraph();
+  const rssPoller = new RssPoller(localMindGraph);
   const eidolonField = new EidolonFieldState();
   const promptField = new PromptFieldEngine();
   const mindQueue = new CephalonMindQueue();
@@ -207,6 +221,8 @@ export async function createCephalonApp(
     policy,
     discordApiClient,
     mindQueue,
+    openPlannerGraphQueryClient,
+    graphWorkbenchClient,
   );
 
   const sessionManager = new SessionManager(
@@ -220,7 +236,7 @@ export async function createCephalonApp(
 
   getRuntimeState = async () => ({
     cephalonName,
-    graphSummary: graphWeaver.summarize(),
+    graphSummary: localMindGraph.summarize(),
     rssSummary: rssPoller.summary(),
     eidolonSummary: eidolonField.summary(),
     promptFieldSummary: promptField.summary(),
@@ -418,7 +434,7 @@ export async function createCephalonApp(
       circuit: runtime.config,
       tickNumber: runtime.tickNumber,
       temporal: temporalPayload,
-      graphSummary: graphWeaver.summarize(),
+      graphSummary: localMindGraph.summarize(),
       rssSummary: rssPoller.summary(),
       eidolonSummary: eidolonField.summary(),
       promptFieldSummary: promptField.summary(),
@@ -459,7 +475,7 @@ export async function createCephalonApp(
         }
 
         toolExecutor.observeDiscordMessage(event.payload as any);
-        graphWeaver.ingestDiscordMessage(event.payload as any);
+        localMindGraph.ingestDiscordMessage(event.payload as any);
         eidolonField.ingestDiscordMessage(event.payload as any);
         promptField.observeMessage(event.payload as any);
 
@@ -546,9 +562,9 @@ export async function createCephalonApp(
 
     isRunning = true;
 
-    await graphWeaver.load();
+    await localMindGraph.load();
     await rssPoller.start();
-    promptField.evolve(graphWeaver.summarize(), rssPoller.summary(), eidolonField.summary());
+    promptField.evolve(localMindGraph.summarize(), rssPoller.summary(), eidolonField.summary());
 
     await sessionManager.start();
 
@@ -592,7 +608,7 @@ export async function createCephalonApp(
     }
 
     promptFieldInterval = setInterval(() => {
-      promptField.evolve(graphWeaver.summarize(), rssPoller.summary(), eidolonField.summary());
+      promptField.evolve(localMindGraph.summarize(), rssPoller.summary(), eidolonField.summary());
       console.log(`[PromptField] ${promptField.summary()}`);
     }, Number(process.env.CEPHALON_PROMPT_FIELD_MS || 180000));
 
@@ -643,7 +659,7 @@ export async function createCephalonApp(
 
     try {
       rssPoller.stop();
-      await graphWeaver.flush();
+      await localMindGraph.flush();
     } catch (err) {
       console.error("[Shutdown] Error flushing mind state:", err);
     }

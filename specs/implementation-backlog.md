@@ -1,8 +1,48 @@
 # Cephalon Implementation Backlog
 
+## Canonical Runtime
+
+**`packages/cephalon-cljs`** is the canonical implementation. TypeScript (`packages/cephalon-ts`) is deprecated.
+
+See `specs/cljs-ts-feature-parity-audit.md` for current gaps and `specs/package-decomposition-roadmap.md` for planned decomposition.
+
 ## Goal
 
 Turn the consolidated Cephalon canon into a legible, convergent program without destroying the distinct insights carried by each package.
+
+---
+
+## Critical Gaps (CLJS → TS Parity)
+
+| Spec | Points | Status | Description |
+|------|--------|--------|-------------|
+| [cljs-gap-mongodb-memory-store.md](./cljs-gap-mongodb-memory-store.md) | 2 | **done** | MongoDB persistence for CLJS |
+| [cljs-gap-tool-executor-registry.md](./cljs-gap-tool-executor-registry.md) | 5 | **done** | Expand tool registry, add executor |
+| [cljs-gap-turn-processor.md](./cljs-gap-turn-processor.md) | 3 | **done** | Turn processing pipeline |
+| [cljs-gap-circuit-scheduling.md](./cljs-gap-circuit-scheduling.md) | 3 | **done** | 8-circuit temporal scheduler |
+| **Total** | **13** | **13 done** | |
+
+**Execution order:** mongodb-store + tool-executor + circuit-scheduling can run in parallel; turn-processor depends on tool-executor.
+
+---
+
+## Package Decomposition
+
+See [package-decomposition-roadmap.md](./package-decomposition-roadmap.md) for full plan.
+
+| Phase | Spec | Points | Status |
+|-------|------|--------|--------|
+| 0 | CLJS canonical establishment | 3 | **done** |
+| 1 | Personality system | 3 | **in-progress** |
+| 2 | Discord adapter | 3 | todo |
+| 3 | Agent memory | 2 | todo |
+| 4 | Agent LLM | 2 | todo |
+| 5 | Tools split | 5 | todo |
+| 6 | Agent mind | 2 | todo |
+| 7 | Rename packages | 1 | todo |
+| 8 | Agent runtime | 3 | todo |
+
+---
 
 ## Phase 0 — keep the dossier honest
 
@@ -64,10 +104,12 @@ Implementation and adapter work still remain after the draft, especially for too
 - [ ] extract shared doctrine and schemas into repo-level contracts instead of duplicating them per package
 - [ ] choose where the canonical implementation of eidolon, nexus, and prompt-field logic should live
 - [ ] choose whether the control plane belongs inside the TS runtime only or as a cross-package contract
+- [ ] finish the local-trace/workbench split: `packages/cephalon-ts/src/mind/local-mind-graph.ts` now holds the honest local trace helper, `src/mind/graph-weaver.ts` is a compatibility shim, and `packages/cephalon-ts/src/graph-workbench/client.ts` plus `TurnProcessor` now consume workbench previews; remaining work is to remove old naming drift from the rest of the package
+- [x] implement the OpenPlanner-backed graph query seam described in `specs/cephalon-openplanner-graph-query-contract.md` via `packages/cephalon-ts/src/openplanner/graph-*.ts` and initial `TurnProcessor` graph-context integration
 
 ## Phase 4 — package-family polish
 
-- [ ] add one root matrix relating Cephalon to `graph-runtime`, `graph-weaver`, `myrmex`, `daimoi`, and `simulacron`
+- [x] add one root matrix relating Cephalon to `graph-runtime`, `graph-weaver`, `myrmex`, `daimoi`, and `simulacron` via `specs/adjacent-systems-matrix.md` (also includes OpenPlanner and current Knoxx roadmap anchors)
 - [ ] add reproducible dev profiles for `duck`, `openhax`, `openskull`, and `error`
 - [ ] define which repo-local docs are doctrine, which are historical, and which are implementation notes
 - [ ] add small architecture diagrams for the TS runtime, CLJS ECS loop, and recovered two-process branch
