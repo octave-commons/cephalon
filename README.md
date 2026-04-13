@@ -4,6 +4,9 @@
 
 This repo is the intended **single source of truth** for the Cephalon family inside the `octave-commons` line.
 
+
+> Built with [GLM-5](https://z.ai) — part of the [z.ai](https://z.ai) startup ecosystem and the [Ussyverse](https://ussy.cloud).
+
 ## Canonical Runtime
 
 **`packages/cephalon-cljs`** is the canonical implementation using ECS architecture.
